@@ -6,6 +6,11 @@
     bower install
     grunt serve
 
+- Help
+
+    grunt --help
+        grunt build ...etc
+
 - Try:
 
     http://127.0.0.1:9000/api/ssd/faq/?format=json
