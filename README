@@ -1,9 +1,11 @@
-# Commands
+# AngularJS start Project with mod_rewrite
+
+- Commands
 
     npm install
     bower install
     grunt serve
 
-# Try:
+- Try:
 
     http://127.0.0.1:9000/api/ssd/faq/?format=json
