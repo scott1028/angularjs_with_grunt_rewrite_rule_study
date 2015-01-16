@@ -5,7 +5,10 @@
     "http-rewrite-middleware": "~0.1.5"
   },
   "devDependencies": {
+    "wiredep": ">=1.8.1",
     "grunt": "~0.4.1",
+    "grunt-wiredep": ">=1.8.0",
+    "grunt-autoprefixer": ">=0.4.0",
     "grunt-autoprefixer": "~0.4.0",
     "grunt-bower-install": "~1.0.0",
     "grunt-concurrent": "~0.5.0",

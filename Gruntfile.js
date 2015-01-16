@@ -312,6 +312,17 @@ module.exports = function (grunt) {
       ]
     },
 
+
+    // intead of bower-install which is deprecated.
+    // wiredep: {
+    //   app: {
+    //     cwd: '<%= yeoman.app %>/../',
+    //     src: '<%= yeoman.app %>/index.html',
+    //     ignorePath: '<%= yeoman.app %>/'
+    //   }
+    // },
+
+
     // By default, your `index.html`'s <!-- Usemin block --> will take care of
     // minification. These next options are pre-configured if you do not wish
     // to use the Usemin blocks.
@@ -346,8 +357,9 @@ module.exports = function (grunt) {
       }
     }
   });
-
-
+  
+  grunt.loadNpmTasks('grunt-wiredep');
+  
   grunt.registerTask('serve', function (target) {
     if (target === 'dist') {
       return grunt.task.run(['build', 'connect:dist:keepalive']);
