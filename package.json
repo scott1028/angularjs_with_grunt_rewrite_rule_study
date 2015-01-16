@@ -5,8 +5,8 @@
     "http-rewrite-middleware": "~0.1.5"
   },
   "devDependencies": {
-    "wiredep": ">=1.8.1",
     "grunt": "~0.4.1",
+    "wiredep": ">=1.8.1",
     "grunt-wiredep": ">=1.8.0",
     "grunt-autoprefixer": ">=0.4.0",
     "grunt-autoprefixer": "~0.4.0",
@@ -36,7 +36,10 @@
     "karma": "~0.12.16",
     "karma-jasmine": "~0.1.5",
     "grunt-connect-rewrite": "~0.2.1",
-    "connect-modrewrite": "~0.7.6"
+    "connect-modrewrite": "~0.7.6",
+    "grunt-regex-replace": ">=0.2.5",
+    "grunt-shell": "~0.7.0",
+    "bower": ">=1.3.12"
   },
   "engines": {
     "node": ">=0.10.0"

@@ -8,11 +8,15 @@
 // 'test/spec/**/*.js'
 
 module.exports = function (grunt) {
+  // get paramter
+  var target = grunt.option('target') || 'app';
+
   // Load grunt tasks automatically
   require('load-grunt-tasks')(grunt);
 
   // Time how long tasks take. Can help when optimizing build times
   require('time-grunt')(grunt);
+
 
   // Define the configuration for all the tasks
   grunt.initConfig({
@@ -23,6 +27,25 @@ module.exports = function (grunt) {
       app: require('./bower.json').appPath || 'app',
       dist: 'dist'
     },
+
+
+    // for auto run bower install
+    shell: {
+      bower: {
+        options: {
+            stderr: false
+        },
+        command: 'bower install --allow-root'
+      },
+
+      stop_dev_server: {
+        options: {
+            stderr: false
+        },
+        command: 'ps aux | grep grunt | awk \'{print $2}\' | xargs kill -9; sleep 0.5'
+      }
+    },
+
 
     // Watches files for changes and runs tasks based on the changed files
     watch: {
@@ -70,8 +93,11 @@ module.exports = function (grunt) {
         middleware: function (connect, options) {
           var optBase = (typeof options.base === 'string') ? [options.base] : options.base;
           return [require('connect-modrewrite')([
-            '^/api/(.*)$ http://py.dev.gslssd.com/api/$1 [P]'
+            '^/api/(.*)$ http://localhost:3333/api/$1 [P,L]',
+            '!\\.js|\\.html|\\.css|\\.png|\\.jpg|\\.gif|\\.svg|\\.ttf|\\..woff$ /index.html [L]'
             ])].concat(
+
+            // add local html file
             optBase.map(function(path){ return connect.static(path); }));
         }
       },
@@ -101,6 +127,26 @@ module.exports = function (grunt) {
       }
     },
 
+
+    // Empties folders to start fresh
+    clean: {
+      dist: {
+        files: [{
+          dot: true,
+          src: [
+              // '<%= yeoman.app %>/components',
+              '.tmp',
+              '<%= yeoman.tmp %>/*',
+              '<%= yeoman.dist %>/*',
+              '!<%= yeoman.dist %>/.git*'
+          ]
+        }]
+      },
+      server: '<%= yeoman.dist %>',
+      tmp: ['.tmp', 'tmp']
+    },
+
+
     // Make sure code styles are up to par and there are no obvious mistakes
     jshint: {
       options: {
@@ -119,20 +165,22 @@ module.exports = function (grunt) {
       }
     },
 
-    // Empties folders to start fresh
-    clean: {
-      dist: {
-        files: [{
-          dot: true,
-          src: [
-            '.tmp',
-            '<%= yeoman.dist %>/*',
-            '!<%= yeoman.dist %>/.git*'
-          ]
-        }]
-      },
-      server: '.tmp'
-    },
+
+    // // Empties folders to start fresh
+    // clean: {
+    //   dist: {
+    //     files: [{
+    //       dot: true,
+    //       src: [
+    //         '.tmp',
+    //         '<%= yeoman.dist %>/*',
+    //         '!<%= yeoman.dist %>/.git*'
+    //       ]
+    //     }]
+    //   },
+    //   server: '.tmp'
+    // },
+
 
     // Add vendor prefixed styles
     autoprefixer: {
@@ -149,13 +197,25 @@ module.exports = function (grunt) {
       }
     },
 
-    // Automatically inject Bower components into the app
-    bowerInstall: {
+
+    // intead of bower-install which is deprecated.
+    wiredep: {
       app: {
-        src: ['<%= yeoman.app %>/index.html'],
+        cwd: '<%= yeoman.app %>/../',
+        src: '<%= yeoman.app %>/index.html',
         ignorePath: '<%= yeoman.app %>/'
       }
     },
+
+
+    // Automatically inject Bower components into the app (deprecated)
+    // bowerInstall: {
+    //   app: {
+    //     src: ['<%= yeoman.app %>/index.html'],
+    //     ignorePath: '<%= yeoman.app %>/'
+    //   }
+    // },
+
 
     // Renames files for browser caching purposes
     rev: {
@@ -190,6 +250,7 @@ module.exports = function (grunt) {
       }
     },
 
+
     // Performs rewrites based on rev and the useminPrepare configuration
     usemin: {
       html: ['<%= yeoman.dist %>/{,*/}*.html'],
@@ -199,6 +260,7 @@ module.exports = function (grunt) {
       }
     },
 
+
     // The following *-min tasks produce minified files in the dist folder
     cssmin: {
       options: {
@@ -206,6 +268,8 @@ module.exports = function (grunt) {
       }
     },
 
+
+    //
     imagemin: {
       dist: {
         files: [{
@@ -217,6 +281,8 @@ module.exports = function (grunt) {
       }
     },
 
+
+    //
     svgmin: {
       dist: {
         files: [{
@@ -228,6 +294,8 @@ module.exports = function (grunt) {
       }
     },
 
+
+    //
     htmlmin: {
       dist: {
         options: {
@@ -245,6 +313,7 @@ module.exports = function (grunt) {
       }
     },
 
+
     // ngmin tries to make the code safe for minification automatically by
     // using the Angular long form for dependency injection. It doesn't work on
     // things like resolve or inject so those have to be done manually.
@@ -259,12 +328,14 @@ module.exports = function (grunt) {
       }
     },
 
+
     // Replace Google CDN references
     cdnify: {
       dist: {
         html: ['<%= yeoman.dist %>/*.html']
       }
     },
+
 
     // Copies remaining files to places other tasks can use
     copy: {
@@ -296,6 +367,22 @@ module.exports = function (grunt) {
         src: '{,*/}*.css'
       }
     },
+
+
+    // replace .htaccess file settings
+    "regex-replace": {
+        htaccess_to_local: { //specify a target with any name
+            src: ['dist/.htaccess'],
+            actions: [{
+                name: 'rewrite_rule',
+                search: 'py.stg.gslssd.com',
+                replace: function() {
+                    return '127.0.0.1:3333';
+                }
+            }]
+        }
+    },
+
 
     // Run some tasks in parallel to speed up the build process
     concurrent: {
@@ -349,6 +436,7 @@ module.exports = function (grunt) {
     //   dist: {}
     // },
 
+
     // Test settings
     karma: {
       unit: {
@@ -358,8 +446,23 @@ module.exports = function (grunt) {
     }
   });
   
+
+  // loading tasks provided by plugin
   grunt.loadNpmTasks('grunt-wiredep');
+  grunt.loadNpmTasks('grunt-shell');
+  grunt.loadNpmTasks('grunt-regex-replace');
+
+
+  // add plugin task
+  grunt.loadNpmTasks('grunt-contrib-connect');
+  grunt.loadNpmTasks('grunt-connect-rewrite');
+
+
+  // add karma testing
+  grunt.loadNpmTasks('grunt-karma');
+
   
+  // serve
   grunt.registerTask('serve', function (target) {
     if (target === 'dist') {
       return grunt.task.run(['build', 'connect:dist:keepalive']);
@@ -367,7 +470,8 @@ module.exports = function (grunt) {
 
     grunt.task.run([
       'clean:server',
-      'bowerInstall',
+      // 'bowerInstall',
+      'wiredep',
       'concurrent:server',
       'autoprefixer',
       'connect:livereload',
@@ -390,7 +494,8 @@ module.exports = function (grunt) {
 
   grunt.registerTask('build', [
     'clean:dist',
-    'bowerInstall',
+    // 'bowerInstall',
+    'wiredep',
     'useminPrepare',
     'concurrent:dist',
     'autoprefixer',
@@ -410,4 +515,17 @@ module.exports = function (grunt) {
     'test',
     'build'
   ]);
+
+
+  // sample
+  // grunt.task.run([
+  //   'clean:dist',
+  //   'shell:bower',
+  //   'wiredep',
+  //   'autoprefixer',
+  //   'copy:all',
+  //   'copy:stg',
+  //   'build:min',
+  //   'regex-replace:htaccess_to_local'
+  // ]);
 };
