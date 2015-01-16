@@ -11,10 +11,8 @@ angular.module('myAngularJsStudyApp')
     circle.y = 100;
 
 
-    //
-    circle.addEventListener('click', function(e){
-      alert(1);
-    });
+    // make it movable
+    $scope.canvas_movable_shape(circle);
 
 
     // add to scene
